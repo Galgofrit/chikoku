@@ -402,6 +402,7 @@
             if (answerSubmitted) {
                 if (timeoutId) {
                     clearTimeout(timeoutId);
+                    timeoutId = null;
                 }
                 generateQuestion();
                 return;
