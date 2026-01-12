@@ -259,6 +259,7 @@
         let correctAnswers = 0;
         let totalQuestions = 0;
         let answerSubmitted = false;
+        let timeoutId = null;
 
         function loadStats() {
             const savedCorrect = localStorage.getItem('chikoku_correctAnswers');
@@ -347,6 +348,11 @@
         }
 
         function generateQuestion() {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            
             const scaleKeys = Object.keys(scales);
             currentScale = scaleKeys[Math.floor(Math.random() * scaleKeys.length)];
             const scale = scales[currentScale];
@@ -389,8 +395,6 @@
                 }
             });
         });
-
-        let timeoutId = null;
 
         document.getElementById('send-btn').addEventListener('click', () => {
             const sendBtn = document.getElementById('send-btn');
