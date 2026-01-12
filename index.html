@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minor Scale Chord Degree Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .percentage {
+            color: #667eea;
+        }
+
+        .counter {
+            color: #764ba2;
+        }
+
+        .chord-display {
+            text-align: center;
+            margin: 60px 0;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chord {
+            font-size: 72px;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.2;
+        }
+
+        .chord .roman {
+            font-size: 1em;
+            vertical-align: baseline;
+        }
+
+        .chord .quality {
+            font-size: 0.5em;
+            vertical-align: sub;
+        }
+
+        .chord .flat {
+            font-size: 0.5em;
+            vertical-align: sub;
+            margin-right: -0.1em;
+        }
+
+        .chord .sharp {
+            font-size: 0.5em;
+            vertical-align: sub;
+            margin-left: -0.1em;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .option-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .send-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            background: #764ba2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #5a3a7a;
+            transform: translateY(-2px);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .clear-link {
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            text-decoration: none;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .clear-link:hover {
+            color: #ef4444;
+            text-decoration: underline;
+        }
+
+        .feedback {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .feedback.correct {
+            color: #10b981;
+        }
+
+        .feedback.incorrect {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">遅刻けど向かっています</div>
+    <div class="container">
+        <div class="stats">
+            <div class="percentage" id="percentage">0%</div>
+            <div class="counter" id="counter">0/0</div>
+        </div>
+
+        <div class="chord-display">
+            <div class="chord" id="chord-display"></div>
+        </div>
+
+        <div class="options">
+            <button class="option-btn" data-scale="natural">N.M</button>
+            <button class="option-btn" data-scale="harmonic">H.M</button>
+            <button class="option-btn" data-scale="melodic">M.M</button>
+            <button class="option-btn" data-scale="dorian">Dorian</button>
+        </div>
+
+        <button class="send-btn" id="send-btn">Send</button>
+
+        <div class="feedback" id="feedback"></div>
+
+        <a class="clear-link" id="clear-btn">Clear Results</a>
+    </div>
+
+    <script>
+        const scales = {
+            natural: {
+                name: 'Natural Minor',
+                chords: [
+                    { degree: 'I', quality: 'mi7', display: 'Imi7' },
+                    { degree: 'II', quality: 'mi7(b5)', display: 'IImi7(♭5)' },
+                    { degree: 'III', quality: 'ma7', display: 'bIIIma7' },
+                    { degree: 'IV', quality: 'mi7', display: 'IVmi7' },
+                    { degree: 'V', quality: 'mi7', display: 'Vmi7' },
+                    { degree: 'VI', quality: 'ma7', display: 'bVIma7' },
+                    { degree: 'VII', quality: '7', display: 'bVII7' }
+                ]
+            },
+            harmonic: {
+                name: 'Harmonic Minor',
+                chords: [
+                    { degree: 'I', quality: 'miMA7', display: 'ImiMA7' },
+                    { degree: 'II', quality: 'mi7(b5)', display: 'IImi7(♭5)' },
+                    { degree: 'III', quality: 'ma7(#5)', display: 'bIIIma7(♯5)' },
+                    { degree: 'IV', quality: 'mi7', display: 'IVmi7' },
+                    { degree: 'V', quality: '7', display: 'V7' },
+                    { degree: 'VI', quality: 'ma7', display: 'bVIma7' },
+                    { degree: 'VII', quality: 'dim7', display: 'VIIdim7' }
+                ]
+            },
+            melodic: {
+                name: 'Melodic Minor',
+                chords: [
+                    { degree: 'I', quality: 'miMA7', display: 'ImiMA7' },
+                    { degree: 'II', quality: 'mi7', display: 'IImi7' },
+                    { degree: 'III', quality: 'ma7(#5)', display: 'bIIIma7(♯5)' },
+                    { degree: 'IV', quality: '7', display: 'IV7' },
+                    { degree: 'V', quality: '7', display: 'V7' },
+                    { degree: 'VI', quality: 'mi7(b5)', display: 'VImi7(♭5)' },
+                    { degree: 'VII', quality: 'mi7(b5)', display: 'VIImi7(♭5)' }
+                ]
+            },
+            dorian: {
+                name: 'Dorian',
+                chords: [
+                    { degree: 'IV', quality: '7', display: 'IV7' },
+                    { degree: 'VII', quality: 'ma7', display: 'bVIIma7' }
+                ]
+            }
+        };
+
+        let currentChord = null;
+        let currentScale = null;
+        let selectedScales = [];
+        let correctAnswers = 0;
+        let totalQuestions = 0;
+        let answerSubmitted = false;
+
+        function loadStats() {
+            const savedCorrect = localStorage.getItem('chikoku_correctAnswers');
+            const savedTotal = localStorage.getItem('chikoku_totalQuestions');
+            if (savedCorrect !== null) {
+                correctAnswers = parseInt(savedCorrect, 10);
+            }
+            if (savedTotal !== null) {
+                totalQuestions = parseInt(savedTotal, 10);
+            }
+            updateStats();
+        }
+
+        function saveStats() {
+            localStorage.setItem('chikoku_correctAnswers', correctAnswers.toString());
+            localStorage.setItem('chikoku_totalQuestions', totalQuestions.toString());
+        }
+
+        function clearStats() {
+            correctAnswers = 0;
+            totalQuestions = 0;
+            localStorage.removeItem('chikoku_correctAnswers');
+            localStorage.removeItem('chikoku_totalQuestions');
+            updateStats();
+        }
+
+        function findScalesContainingChord(chordDisplay) {
+            const containingScales = [];
+            for (const [scaleKey, scale] of Object.entries(scales)) {
+                if (scale.chords.some(chord => chord.display === chordDisplay)) {
+                    containingScales.push(scaleKey);
+                }
+            }
+            return containingScales;
+        }
+
+        function formatChord(chordDisplay) {
+            let romanStart = -1;
+            let romanEnd = -1;
+            
+            for (let i = 0; i < chordDisplay.length; i++) {
+                if (/[ivxIVX]/.test(chordDisplay[i])) {
+                    if (romanStart === -1) romanStart = i;
+                    romanEnd = i;
+                } else if (romanEnd >= 0) {
+                    break;
+                }
+            }
+            
+            if (romanStart === -1) return chordDisplay;
+            
+            let formatted = '';
+            let qualityStarted = false;
+            
+            for (let i = 0; i < chordDisplay.length; i++) {
+                if (i < romanStart) {
+                    if (chordDisplay[i] === 'b') {
+                        formatted += '<span class="flat">♭</span>';
+                    } else if (chordDisplay[i] === '#') {
+                        formatted += '<span class="sharp">♯</span>';
+                    } else {
+                        formatted += chordDisplay[i];
+                    }
+                } else if (i >= romanStart && i <= romanEnd) {
+                    formatted += '<span class="roman">' + chordDisplay[i].toUpperCase() + '</span>';
+                } else {
+                    if (!qualityStarted) {
+                        formatted += '<span class="quality">';
+                        qualityStarted = true;
+                    }
+                    if (chordDisplay[i] === 'b') {
+                        formatted += '♭';
+                    } else if (chordDisplay[i] === '#') {
+                        formatted += '♯';
+                    } else {
+                        formatted += chordDisplay[i];
+                    }
+                }
+            }
+            
+            if (qualityStarted) {
+                formatted += '</span>';
+            }
+            
+            return formatted;
+        }
+
+        function generateQuestion() {
+            const scaleKeys = Object.keys(scales);
+            currentScale = scaleKeys[Math.floor(Math.random() * scaleKeys.length)];
+            const scale = scales[currentScale];
+            const chordIndex = Math.floor(Math.random() * scale.chords.length);
+            currentChord = scale.chords[chordIndex];
+            
+            document.getElementById('chord-display').innerHTML = formatChord(currentChord.display);
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            selectedScales = [];
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            answerSubmitted = false;
+            const sendBtn = document.getElementById('send-btn');
+            sendBtn.textContent = 'Send';
+            sendBtn.disabled = false;
+        }
+
+        function updateStats() {
+            const percentage = totalQuestions === 0 ? 0 : Math.round((correctAnswers / totalQuestions) * 100);
+            document.getElementById('percentage').textContent = percentage + '%';
+            document.getElementById('counter').textContent = `${correctAnswers}/${totalQuestions}`;
+            saveStats();
+        }
+
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const scaleKey = btn.dataset.scale;
+                if (btn.classList.contains('selected')) {
+                    btn.classList.remove('selected');
+                    selectedScales = selectedScales.filter(s => s !== scaleKey);
+                } else {
+                    btn.classList.add('selected');
+                    if (!selectedScales.includes(scaleKey)) {
+                        selectedScales.push(scaleKey);
+                    }
+                }
+            });
+        });
+
+        let timeoutId = null;
+
+        document.getElementById('send-btn').addEventListener('click', () => {
+            const sendBtn = document.getElementById('send-btn');
+            
+            if (answerSubmitted) {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                generateQuestion();
+                return;
+            }
+            
+            if (selectedScales.length === 0) {
+                document.getElementById('feedback').textContent = 'Please select at least one scale';
+                document.getElementById('feedback').className = 'feedback incorrect';
+                return;
+            }
+
+            answerSubmitted = true;
+            totalQuestions++;
+            const correctScales = findScalesContainingChord(currentChord.display);
+            const selectedSet = new Set(selectedScales);
+            const correctSet = new Set(correctScales);
+            
+            const isFullyCorrect = selectedScales.length === correctScales.length &&
+                selectedScales.every(s => correctScales.includes(s));
+            const isPartiallyCorrect = selectedScales.every(s => correctScales.includes(s)) &&
+                selectedScales.length < correctScales.length;
+            
+            if (isFullyCorrect) {
+                correctAnswers++;
+                document.getElementById('feedback').textContent = 'Correct!';
+                document.getElementById('feedback').className = 'feedback correct';
+            } else if (isPartiallyCorrect) {
+                correctAnswers++;
+                const missingScales = correctScales.filter(s => !selectedSet.has(s));
+                const missingNames = missingScales.map(s => scales[s].name).join(', ');
+                document.getElementById('feedback').textContent = `Correct, but also appears in ${missingNames}`;
+                document.getElementById('feedback').className = 'feedback correct';
+            } else {
+                const incorrectScales = selectedScales.filter(s => !correctSet.has(s));
+                if (incorrectScales.length > 0) {
+                    const correctNames = correctScales.map(s => scales[s].name).join(', ');
+                    document.getElementById('feedback').textContent = `Incorrect. The answer is ${correctNames}`;
+                } else {
+                    const missingScales = correctScales.filter(s => !selectedSet.has(s));
+                    const missingNames = missingScales.map(s => scales[s].name).join(', ');
+                    document.getElementById('feedback').textContent = `Incomplete. Also appears in ${missingNames}`;
+                }
+                document.getElementById('feedback').className = 'feedback incorrect';
+            }
+
+            updateStats();
+            
+            sendBtn.textContent = 'Next';
+            
+            timeoutId = setTimeout(() => {
+                generateQuestion();
+            }, 2000);
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all results?')) {
+                clearStats();
+            }
+        });
+
+        loadStats();
+        generateQuestion();
+    </script>
+</body>
+</html>
